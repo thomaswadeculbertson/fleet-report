@@ -1,0 +1,371 @@
+<title>O Relatório da Frota</title>
+<meta name="fleet-stamp" content="b4d5f2cd0982">
+<style>
+  :root {
+    --paper: #FAF7F0;
+    --ink: #26302B;
+    --ink-2: #5A6159;
+    --ink-3: #8B9088;
+    --rule: #D9D3C4;
+    --card: #F2EDE1;
+    --gold: #A87E2F;
+    --c-robot: #A87E2F;
+    --c-stock: #3D6EC2;
+    --up: #2E7D4F;
+    --down: #B54A3C;
+    --serif-display: "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --serif-body: Georgia, "Times New Roman", serif;
+    --mono: Consolas, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #1C221F;
+      --ink: #E8E3D6;
+      --ink-2: #A9AFA4;
+      --ink-3: #7C837A;
+      --rule: #3A423C;
+      --card: #242B27;
+      --gold: #C09344;
+      --c-robot: #BA8A2E;
+      --c-stock: #5E86D9;
+      --up: #5CAF82;
+      --down: #D77E6E;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #1C221F; --ink: #E8E3D6; --ink-2: #A9AFA4; --ink-3: #7C837A;
+    --rule: #3A423C; --card: #242B27; --gold: #C09344;
+    --c-robot: #BA8A2E; --c-stock: #5E86D9; --up: #5CAF82; --down: #D77E6E;
+  }
+  :root[data-theme="light"] {
+    --paper: #FAF7F0; --ink: #26302B; --ink-2: #5A6159; --ink-3: #8B9088;
+    --rule: #D9D3C4; --card: #F2EDE1; --gold: #A87E2F;
+    --c-robot: #A87E2F; --c-stock: #3D6EC2; --up: #2E7D4F; --down: #B54A3C;
+  }
+  html { background: var(--paper); }
+  body {
+    background: var(--paper); color: var(--ink);
+    font-family: var(--serif-body); font-size: 19px; line-height: 1.62;
+    margin: 0; padding: 2.4rem 1.2rem 4rem;
+  }
+  .sheet { max-width: 46rem; margin: 0 auto; }
+  .masthead { text-align: center; border-bottom: 3px double var(--rule); padding-bottom: 1.1rem; }
+  .masthead h1 {
+    font-family: var(--serif-display); font-size: 2.7rem; letter-spacing: .04em;
+    margin: 0 0 .3rem; font-weight: 700; text-wrap: balance;
+  }
+  .masthead .issue {
+    font-family: var(--serif-display); font-size: .82rem; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--ink-2);
+  }
+  h2 {
+    font-family: var(--serif-display); font-size: 1.45rem; margin: 2.6rem 0 .7rem;
+    text-wrap: balance;
+  }
+  h2 .no { color: var(--gold); font-size: 1rem; letter-spacing: .1em; margin-right: .45em; }
+  p { margin: .7rem 0; }
+  .hero { text-align: center; margin: 2.2rem 0 .4rem; }
+  .hero .big {
+    font-family: var(--serif-display); font-size: 3.4rem; line-height: 1.1;
+    color: var(--up); font-variant-numeric: tabular-nums; font-weight: 700;
+  }
+  .hero .sub { color: var(--ink-2); font-size: 1rem; max-width: 34rem; margin: .5rem auto 0; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: .6rem; margin: 1.6rem 0; }
+  .tile { background: var(--card); border-radius: 6px; padding: .8rem .9rem; }
+  .tile .k { font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); font-family: var(--serif-display); }
+  .tile .v { font-family: var(--mono); font-size: 1.35rem; font-variant-numeric: tabular-nums; margin-top: .15rem; }
+  .tile .v.up { color: var(--up); } .tile .v.down { color: var(--down); }
+  .tablewrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+  th { font-family: var(--serif-display); font-size: .74rem; letter-spacing: .12em; text-transform: uppercase;
+       color: var(--ink-3); text-align: left; padding: .45rem .6rem; border-bottom: 2px solid var(--rule); }
+  td { padding: .5rem .6rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .up { color: var(--up); } .down { color: var(--down); }
+  figure { margin: 1.4rem 0; }
+  figcaption { font-size: .82rem; color: var(--ink-2); margin-bottom: .6rem; }
+  .legend { display: flex; gap: 1.4rem; font-size: .82rem; color: var(--ink-2); margin: 0 0 .4rem; }
+  .legend .chip { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: .4em; vertical-align: -1px; }
+  .chartbox { overflow-x: auto; }
+  svg text { font-family: var(--serif-body); fill: var(--ink-2); font-size: 12.5px; }
+  svg text.val { font-family: var(--mono); font-variant-numeric: tabular-nums; fill: var(--ink); font-size: 12px; }
+  svg text.grp { font-family: var(--serif-display); letter-spacing: .12em; font-size: 11.5px; fill: var(--ink-3); text-transform: uppercase; }
+  .timeline { list-style: none; padding: 0; margin: 1rem 0; }
+  .timeline li { display: grid; grid-template-columns: 7.2rem 1fr; gap: 1rem; padding: .55rem 0; border-bottom: 1px solid var(--rule); }
+  .timeline .when { font-family: var(--serif-display); font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--gold); padding-top: .2rem; }
+  .quote {
+    font-family: var(--serif-display); font-size: 1.25rem; font-style: italic;
+    border-left: 3px solid var(--gold); margin: 1.8rem 0; padding: .3rem 0 .3rem 1.1rem; text-wrap: balance;
+  }
+  .quote .who { display: block; font-size: .85rem; font-style: normal; color: var(--ink-2); margin-top: .4rem; }
+  dl.gloss { margin: 1rem 0; }
+  dl.gloss dt { font-family: var(--serif-display); font-weight: 700; margin-top: .7rem; }
+  dl.gloss dd { margin: .1rem 0 0 0; color: var(--ink-2); font-size: .95rem; }
+  .notices { background: var(--card); border-left: 3px solid var(--gold); border-radius: 6px; padding: .9rem 1.1rem; margin: 1.6rem 0; }
+  .notices .k { font-family: var(--serif-display); font-size: .74rem; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); margin-bottom: .4rem; }
+  .notices ul { margin: .3rem 0 0; padding-left: 1.1rem; font-size: .92rem; }
+  .notices li { margin: .3rem 0; }
+  .notices .d { font-family: var(--serif-display); font-size: .78rem; letter-spacing: .08em; color: var(--ink-3); margin-right: .4em; }
+  .signoff { margin-top: 3rem; border-top: 3px double var(--rule); padding-top: 1.2rem; text-align: center; color: var(--ink-2); font-style: italic; }
+  .listen { background: var(--card); border-radius: 8px; padding: .9rem 1.1rem; margin: 1.6rem auto 0; max-width: 30rem; text-align: center; }
+  .listen .k { display: block; font-family: var(--serif-display); font-size: .74rem; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); margin-bottom: .5rem; }
+  .listen audio { width: 100%; }
+  .listen .dur { display: block; font-size: .8rem; color: var(--ink-3); margin-top: .4rem; }
+  a { color: var(--gold); }
+
+  .langbar { text-align: center; margin: 0 0 1.2rem; }
+  .langbar button { font-family: var(--serif-display); letter-spacing: .08em;
+    font-size: .8rem; padding: .3rem .95rem; border: 1px solid var(--rule);
+    background: var(--card); color: var(--ink-2); border-radius: 999px;
+    cursor: pointer; margin: 0 .2rem; }
+  .langbar button.on { border-color: var(--gold); color: var(--gold); font-weight: 700; }
+</style>
+
+<div class="langbar"><button id="btn-en" onclick="setLang('en')">English</button><button id="btn-pt" onclick="setLang('pt')">Portugu&ecirc;s</button></div>
+<div id="lang-en"><div class="sheet">
+  <header class="masthead">
+    <h1>The Fleet Report</h1>
+    <div class="mission" style="font-style:italic;color:var(--ink-2);max-width:34rem;margin:.55rem auto .35rem;line-height:1.45">A research project to attempt to develop a trading algorithm that, by timing alternate switching from long to short in the same stock, can outperform the underlying stock &mdash; thereby increasing return and reducing volatility.</div>
+    <div class="issue">Interim report from July 19, 2026 - 30 days.<br>Prices and performance updated to August 18, 2026, 17:53 S&atilde;o Paulo time (20:53 UTC)</div>
+  </header>
+
+  <div class="tiles">
+    <div class="tile"><div class="k">Robots working</div><div class="v">4</div></div>
+    <div class="tile"><div class="k">Stake &middot; $3,000 per robot</div><div class="v">$12,000</div></div>
+    <div class="tile"><div class="k">Value now</div><div class="v up">$12,016</div></div>
+    <div class="tile"><div class="k">PnL today</div><div class="v up">+2.10%</div></div>
+    <div class="tile"><div class="k">S&amp;P 500 today</div><div class="v down">-0.48%</div></div>
+  </div>
+
+  <figure id="pricechart"><figcaption>Cumulative profit of each robot since July 19, 2026, as % of its $3,000 stake. Tesla's line is frozen at its Aug 17 close; the NBIS line begins Aug 17. The dashed line is the whole fleet, as % of the $12,000.</figcaption><div class="chartbox"><svg viewBox="0 0 690 300" width="100%" role="img" aria-label="Cumulative profit of the fleet robots since July 19"><defs><filter id="pglow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><line x1="46" y1="234.3" x2="594" y2="234.3" stroke="var(--rule)" stroke-width="1"/><text x="40" y="238.3" text-anchor="end" style="font-size:11px">-20%</text><line x1="46" y1="196.1" x2="594" y2="196.1" stroke="var(--rule)" stroke-width="1"/><text x="40" y="200.1" text-anchor="end" style="font-size:11px">-10%</text><line x1="46" y1="158.0" x2="594" y2="158.0" stroke="var(--rule)" stroke-width="1"/><text x="40" y="162.0" text-anchor="end" style="font-size:11px">+0%</text><line x1="46" y1="119.8" x2="594" y2="119.8" stroke="var(--rule)" stroke-width="1"/><text x="40" y="123.8" text-anchor="end" style="font-size:11px">+10%</text><line x1="46" y1="81.7" x2="594" y2="81.7" stroke="var(--rule)" stroke-width="1"/><text x="40" y="85.7" text-anchor="end" style="font-size:11px">+20%</text><line x1="46" y1="43.5" x2="594" y2="43.5" stroke="var(--rule)" stroke-width="1"/><text x="40" y="47.5" text-anchor="end" style="font-size:11px">+30%</text><line x1="46" y1="158.0" x2="594" y2="158.0" stroke="var(--ink-3)" stroke-width="1.4"/><text x="46" y="292" text-anchor="middle" style="font-size:11px">Jul 19</text><text x="173.0" y="292" text-anchor="middle" style="font-size:11px">Jul 26</text><text x="300.0" y="292" text-anchor="middle" style="font-size:11px">Aug 2</text><text x="427.0" y="292" text-anchor="middle" style="font-size:11px">Aug 9</text><text x="553.9" y="292" text-anchor="middle" style="font-size:11px">Aug 16</text><polyline fill="none" stroke="#FFB300" stroke-width="2.2" filter="url(#pglow)" points="46.0,158.0 49.0,158.0 52.1,158.0 55.1,158.0 58.1,158.0 61.1,158.0 64.2,158.0 67.2,158.0 70.2,158.5 73.2,155.6 76.2,154.1 79.3,153.6 82.3,174.7 85.3,158.5 88.3,164.6 91.4,162.8 94.4,160.2 97.4,161.0 100.4,158.7 103.5,186.8 106.5,184.3 109.5,184.3 112.5,184.2 115.6,185.1 118.6,190.9 121.6,181.1 124.6,184.9 127.6,185.2 130.7,183.6 133.7,180.8 136.7,168.7 139.7,174.7 142.8,165.8 145.8,165.9 148.8,165.8 151.8,166.0 154.9,166.1 157.9,166.1 160.9,166.1 163.9,166.0 167.0,166.0 170.0,166.0 173.0,166.1 176.0,166.1 179.0,167.1 182.1,168.1 185.1,173.7 188.1,173.6 191.1,169.5 194.2,163.6 197.2,165.9 200.2,170.6 203.2,170.8 206.3,173.6 209.3,156.2 212.3,151.0 215.3,151.2 218.3,159.7 221.4,156.0 224.4,154.3 227.4,168.8 230.4,169.8 233.5,163.3 236.5,163.9 239.5,165.0 242.5,155.7 245.6,158.3 248.6,148.6 251.6,151.5 254.6,152.5 257.7,155.4 260.7,155.1 263.7,137.8 266.7,141.7 269.7,143.8 272.8,141.4 275.8,140.5 278.8,139.7 281.8,140.1 284.9,143.3 287.9,141.6 290.9,140.6 293.9,140.7 297.0,141.7 300.0,140.7 303.0,140.1 306.0,141.0 309.1,139.9 312.1,141.2 315.1,149.1 318.1,128.9 321.1,129.0 324.2,129.2 327.2,129.4 330.2,129.3 333.2,129.5 336.3,129.7 339.3,130.2 342.3,134.2 345.3,135.5 348.4,135.2 351.4,148.8 354.4,138.1 357.4,117.6 360.5,120.9 363.5,120.2 366.5,121.6 369.5,138.6 372.5,131.7 375.6,142.2 378.6,143.3 381.6,143.9 384.6,145.7 387.7,147.4 390.7,195.5 393.7,205.1 396.7,213.0 399.8,206.3 402.8,208.5 405.8,210.0 408.8,211.8 411.8,224.8 414.9,218.5 417.9,222.4 420.9,222.6 423.9,219.2 427.0,219.0 430.0,220.2 433.0,218.8 436.0,215.6 439.1,212.1 442.1,217.0 445.1,201.2 448.1,185.1 451.2,186.8 454.2,186.6 457.2,188.0 460.2,186.2 463.2,180.3 466.3,189.2 469.3,185.9 472.3,185.0 475.3,186.6 478.4,189.0 481.4,210.2 484.4,222.7 487.4,222.9 490.5,222.0 493.5,224.0 496.5,220.2 499.5,234.1 502.6,233.9 505.6,231.8 508.6,232.0 511.6,232.4 514.6,226.7 517.7,212.2 520.7,203.3 523.7,204.5 526.7,202.1 529.8,201.0 532.8,201.0 535.8,199.8 538.8,199.7 541.9,199.3 544.9,199.6 547.9,197.9 550.9,199.3 554.0,198.8 557.0,199.1 560.0,200.4 563.0,191.2 566.0,192.4 569.1,193.3 572.1,189.4 575.1,189.1 578.1,189.1 581.2,188.0 584.2,186.8 587.2,189.2 590.2,187.2 593.3,181.9 594.0,183.6"/><polyline fill="none" stroke="#00B0FF" stroke-width="2.2" filter="url(#pglow)" points="46.0,157.9 49.0,158.2 52.1,156.2 55.1,163.5 58.1,161.8 61.1,171.4 64.2,171.4 67.2,166.8 70.2,168.0 73.2,182.6 76.2,183.3 79.3,188.0 82.3,193.9 85.3,202.0 88.3,201.3 91.4,197.1 94.4,186.2 97.4,185.0 100.4,173.2 103.5,165.4 106.5,170.3 109.5,171.2 112.5,176.8 115.6,171.0 118.6,180.7 121.6,186.0 124.6,167.2 127.6,167.2 130.7,167.4 133.7,167.1 136.7,166.3 139.7,166.3 142.8,166.3 145.8,166.3 148.8,166.3 151.8,166.3 154.9,166.3 157.9,166.3 160.9,166.3 163.9,166.3 167.0,166.3 170.0,166.3 173.0,166.3 176.0,166.3 179.0,166.3 182.1,166.3 185.1,166.3 188.1,166.3 191.1,166.3 194.2,166.3 197.2,166.3 200.2,166.3 203.2,166.3 206.3,166.3 209.3,166.3 212.3,166.3 215.3,166.3 218.3,166.3 221.4,166.3 224.4,166.3 227.4,166.3 230.4,166.3 233.5,166.3 236.5,166.3 239.5,166.3 242.5,166.3 245.6,166.3 248.6,166.3 251.6,166.3 254.6,166.3 257.7,166.3 260.7,166.3 263.7,166.3 266.7,166.3 269.7,166.3 272.8,167.1 275.8,164.3 278.8,162.9 281.8,165.2 284.9,166.3 287.9,164.0 290.9,154.7 293.9,157.4 297.0,156.9 300.0,157.8 303.0,160.7 306.0,159.7 309.1,157.6 312.1,163.3 315.1,177.0 318.1,166.4 321.1,164.0 324.2,158.9 327.2,162.0 330.2,155.7 333.2,142.7 336.3,170.7 339.3,173.4 342.3,162.2 345.3,157.6 348.4,154.8 351.4,161.0 354.4,151.6 357.4,145.2 360.5,144.5 363.5,142.2 366.5,139.7 369.5,140.0 372.5,131.0 375.6,131.6 378.6,131.9 381.6,130.0 384.6,128.4 387.7,126.8 390.7,128.4 393.7,128.6 396.7,129.0 399.8,127.5 402.8,126.2 405.8,127.6 408.8,130.1 411.8,132.6 414.9,131.9 417.9,131.8 420.9,131.0 423.9,130.7 427.0,131.0 430.0,131.6 433.0,132.3 436.0,133.2 439.1,136.4 442.1,117.7 445.1,116.2 448.1,110.3 451.2,111.8 454.2,105.9 457.2,104.6 460.2,100.8 463.2,103.8 466.3,102.5 469.3,100.1 472.3,101.4 475.3,106.2 478.4,104.0 481.4,93.8 484.4,93.9 487.4,92.5 490.5,93.4 493.5,92.3 496.5,88.8 499.5,71.4 502.6,70.5 505.6,71.9 508.6,70.4 511.6,67.6 514.6,65.6 517.7,55.3 520.7,57.9 523.7,56.7 526.7,59.1 529.8,57.8 532.8,57.5 535.8,57.6 538.8,57.3 541.9,57.1 544.9,54.7 547.9,53.1 550.9,52.5 554.0,52.0 557.0,51.8 560.0,52.2 563.0,51.2 566.0,51.5 569.1,47.8 572.1,44.7 575.1,42.7 578.1,43.1 581.2,33.4 584.2,34.3 587.2,42.4 590.2,52.3 593.3,52.2 594.0,52.5"/><polyline fill="none" stroke="#FF3D71" stroke-width="2.2" filter="url(#pglow)" points="46.0,158.0 49.0,156.9 52.1,158.0 55.1,159.1 58.1,159.7 61.1,157.3 64.2,170.3 67.2,170.3 70.2,170.9 73.2,166.4 76.2,167.7 79.3,169.5 82.3,160.6 85.3,167.5 88.3,169.7 91.4,169.5 94.4,165.0 97.4,164.6 100.4,165.7 103.5,166.2 106.5,166.8 109.5,168.7 112.5,165.4 115.6,168.8 118.6,184.7 121.6,187.0 124.6,180.1 127.6,176.9 130.7,179.6 133.7,179.8 136.7,167.0 139.7,167.0 142.8,167.0 145.8,167.0 148.8,167.0 151.8,167.0 154.9,167.0 157.9,167.0 160.9,167.0 163.9,167.0 167.0,167.0 170.0,167.0 173.0,167.0 176.0,167.0 179.0,167.0 182.1,167.0 185.1,167.0 188.1,167.0 191.1,167.0 194.2,167.0 197.2,167.0 200.2,167.0 203.2,167.0 206.3,167.0 209.3,167.0 212.3,167.0 215.3,167.0 218.3,167.0 221.4,167.0 224.4,167.0 227.4,167.0 230.4,167.0 233.5,167.0 236.5,167.0 239.5,167.0 242.5,167.0 245.6,167.0 248.6,167.0 251.6,167.0 254.6,167.0 257.7,167.0 260.7,167.0 263.7,166.9 266.7,166.7 269.7,166.7 272.8,166.8 275.8,166.7 278.8,166.8 281.8,166.8 284.9,166.6 287.9,168.1 290.9,171.3 293.9,172.8 297.0,170.5 300.0,170.9 303.0,172.0 306.0,173.9 309.1,176.3 312.1,174.7 315.1,180.5 318.1,191.8 321.1,207.4 324.2,206.6 327.2,208.8 330.2,208.8 333.2,198.5 336.3,184.7 339.3,182.4 342.3,180.4 345.3,181.3 348.4,180.5 351.4,176.0 354.4,171.6 357.4,172.8 360.5,167.6 363.5,167.3 366.5,174.2 369.5,170.2 372.5,159.1 375.6,158.1 378.6,158.4 381.6,155.6 384.6,159.7 387.7,160.5 390.7,165.4 393.7,165.1 396.7,166.1 399.8,165.3 402.8,164.9 405.8,166.0 408.8,167.0 411.8,167.8 414.9,167.0 417.9,167.1 420.9,166.9 423.9,167.5 427.0,168.2 430.0,168.5 433.0,167.0 436.0,169.5 439.1,169.1 442.1,171.8 445.1,174.7 448.1,179.6 451.2,174.3 454.2,178.1 457.2,177.6 460.2,180.9 463.2,161.4 466.3,161.4 469.3,156.6 472.3,157.9 475.3,156.4 478.4,153.7 481.4,150.4 484.4,156.1 487.4,157.6 490.5,158.3 493.5,156.9 496.5,156.1 499.5,163.9 502.6,167.7 505.6,168.0 508.6,168.6 511.6,169.8 514.6,167.7 517.7,174.8 520.7,182.9 523.7,180.2 526.7,179.8 529.8,180.1 532.8,180.4 535.8,179.7 538.8,179.7 541.9,179.8 544.9,179.4 547.9,178.9 550.9,179.1 554.0,179.1 557.0,179.2 560.0,179.0 563.0,180.1 566.0,180.3 569.1,182.8 572.1,174.8 575.1,179.5 578.1,179.9 581.2,188.6 584.2,188.5 587.2,190.4 590.2,190.0 593.3,186.2 594.0,185.4"/><polyline fill="none" stroke="#B388FF" stroke-width="2.2" filter="url(#pglow)" points="570.5,158.0 572.1,158.0 575.1,158.0 578.1,158.0 581.2,158.0 584.2,152.9 587.2,140.7 590.2,124.5 593.3,113.6 594.0,113.7"/><polyline fill="none" stroke="#00E676" stroke-width="2.2" filter="url(#pglow)" points="46.0,158.0 49.0,158.1 52.1,157.2 55.1,157.9 58.1,158.1 61.1,156.9 64.2,146.3 67.2,151.6 70.2,151.3 73.2,148.7 76.2,147.8 79.3,149.1 82.3,140.3 85.3,142.6 88.3,142.5 91.4,142.8 94.4,145.0 97.4,145.0 100.4,143.4 103.5,148.8 106.5,163.3 109.5,164.3 112.5,165.5 115.6,173.5 118.6,200.1 121.6,201.7 124.6,199.7 127.6,201.6 130.7,197.7 133.7,200.7 136.7,212.6 139.7,211.5 142.8,211.9 145.8,211.4 148.8,211.9 151.8,211.9 154.9,212.1 157.9,210.6 160.9,210.2 163.9,209.3 167.0,209.7 170.0,207.7 173.0,208.4 176.0,209.5 179.0,206.0 182.1,209.5 185.1,211.4 188.1,210.1 191.1,212.3 194.2,212.6 197.2,212.5 200.2,215.7 203.2,216.1 206.3,216.8 209.3,211.7 212.3,214.0 215.3,214.1 218.3,218.3 221.4,214.3 224.4,211.9 227.4,209.5 230.4,205.9 233.5,203.8 236.5,207.4 239.5,206.5 242.5,212.2 245.6,215.0 248.6,218.8 251.6,219.1 254.6,222.6 257.7,227.8 260.7,223.3 263.7,232.8 266.7,226.6 269.7,230.5 272.8,230.6 275.8,230.5 278.8,230.8 281.8,231.6 284.9,233.6 287.9,231.6 290.9,228.3 293.9,228.2 297.0,228.4 300.0,228.5 303.0,230.5 306.0,232.0 309.1,231.9 312.1,230.5 315.1,228.4 318.1,220.5 321.1,220.4 324.2,220.5 327.2,219.0 330.2,217.4 333.2,217.1 336.3,218.2 339.3,215.3 342.3,212.6 345.3,214.1 348.4,214.6 351.4,212.1 354.4,214.0 357.4,214.8 360.5,214.9 363.5,215.1 366.5,215.3 369.5,215.1 372.5,217.2 375.6,217.7 378.6,216.4 381.6,217.4 384.6,219.0 387.7,219.1 390.7,231.2 393.7,226.3 396.7,227.9 399.8,228.3 402.8,227.8 405.8,228.5 408.8,229.8 411.8,229.9 414.9,231.0 417.9,231.1 420.9,231.1 423.9,229.0 427.0,229.7 430.0,231.0 433.0,228.9 436.0,230.2 439.1,230.9 442.1,229.6 445.1,226.1 448.1,228.2 451.2,228.3 454.2,230.4 457.2,229.3 460.2,231.5 463.2,227.3 466.3,225.1 469.3,224.6 472.3,225.0 475.3,224.1 478.4,223.6 481.4,233.0 484.4,230.7 487.4,231.3 490.5,229.8 493.5,230.5 496.5,232.0 499.5,241.9 502.6,248.9 505.6,251.6 508.6,250.7 511.6,249.2 514.6,250.4 517.7,245.6 520.7,249.7 523.7,249.0 526.7,249.2 529.8,249.4 532.8,249.6 535.8,249.8 538.8,250.5 541.9,250.4 544.9,251.2 547.9,251.4 550.9,250.7 554.0,250.2 557.0,250.3 560.0,250.9 563.0,251.8 566.0,252.6 569.1,249.1 572.1,249.1 575.1,249.1 578.1,249.1 581.2,249.1 584.2,249.1 587.2,249.1 590.2,249.1 593.3,249.1 594.0,250.0"/><polyline fill="none" stroke="var(--ink)" stroke-width="1.8" stroke-dasharray="6 4" points="46.0,158.0 49.0,157.8 52.1,157.4 55.1,159.6 58.1,159.4 61.1,160.9 64.2,161.5 67.2,161.7 70.2,162.2 73.2,163.3 76.2,163.2 79.3,165.1 82.3,167.4 85.3,167.7 88.3,169.5 91.4,168.1 94.4,164.1 97.4,163.9 100.4,160.2 103.5,166.8 106.5,171.2 109.5,172.1 112.5,173.0 115.6,174.6 118.6,189.1 121.6,188.9 124.6,183.0 127.6,182.7 130.7,182.1 133.7,182.1 136.7,178.6 139.7,179.9 142.8,177.8 145.8,177.7 148.8,177.8 151.8,177.8 154.9,177.9 157.9,177.5 160.9,177.4 163.9,177.2 167.0,177.3 170.0,176.8 173.0,177.0 176.0,177.2 179.0,176.6 182.1,177.7 185.1,179.6 188.1,179.3 191.1,178.8 194.2,177.4 197.2,177.9 200.2,179.9 203.2,180.1 206.3,180.9 209.3,175.3 212.3,174.6 215.3,174.7 218.3,177.8 221.4,175.9 224.4,174.9 227.4,177.9 230.4,177.2 233.5,175.1 236.5,176.2 239.5,176.2 242.5,175.3 245.6,176.6 248.6,175.2 251.6,176.0 254.6,177.1 257.7,179.1 260.7,177.9 263.7,176.0 266.7,175.3 269.7,176.8 272.8,176.5 275.8,175.5 278.8,175.0 281.8,175.9 284.9,177.5 287.9,176.3 290.9,173.8 293.9,174.8 297.0,174.4 300.0,174.5 303.0,175.8 306.0,176.6 309.1,176.4 312.1,177.4 315.1,183.7 318.1,176.9 321.1,180.2 324.2,178.8 327.2,179.8 330.2,177.8 333.2,172.0 336.3,175.8 339.3,175.3 342.3,172.3 345.3,172.1 348.4,171.3 351.4,174.5 354.4,168.8 357.4,162.6 360.5,162.0 363.5,161.2 366.5,162.7 369.5,166.0 372.5,159.8 375.6,162.4 378.6,162.5 381.6,161.7 384.6,163.2 387.7,163.5 390.7,180.1 393.7,181.3 396.7,184.0 399.8,181.9 402.8,181.9 405.8,183.0 408.8,184.7 411.8,188.8 414.9,187.1 417.9,188.1 420.9,187.9 423.9,186.6 427.0,187.0 430.0,187.8 433.0,186.8 436.0,187.1 439.1,187.1 442.1,184.0 445.1,179.6 448.1,175.8 451.2,175.3 454.2,175.2 457.2,174.9 460.2,174.9 463.2,168.2 466.3,169.5 469.3,166.8 472.3,167.3 475.3,168.3 478.4,167.6 481.4,171.9 484.4,175.9 487.4,176.1 490.5,175.9 493.5,175.9 496.5,174.3 499.5,177.8 502.6,180.3 505.6,180.8 508.6,180.4 511.6,179.7 514.6,177.6 517.7,172.0 520.7,173.4 523.7,172.6 526.7,172.5 529.8,172.1 532.8,172.1 535.8,171.7 538.8,171.8 541.9,171.7 544.9,171.2 547.9,170.3 550.9,170.4 554.0,170.0 557.0,170.1 560.0,170.6 563.0,168.6 566.0,169.2 569.1,168.3 570.5,168.3 572.1,164.5 575.1,165.1 578.1,165.3 581.2,164.8 584.2,163.4 587.2,163.5 590.2,161.3 593.3,156.2 594.0,157.5"/><text x="599.0" y="56.5" style="font-size:11px;fill:#00B0FF;font-weight:700">INTC +27.7%</text><text x="599.0" y="117.7" style="font-size:11px;fill:#B388FF;font-weight:700">NBIS +11.6%</text><text x="599.0" y="161.5" style="font-size:11px;fill:var(--ink);font-weight:700">FLEET +0.1%</text><text x="599.0" y="187.6" style="font-size:11px;fill:#FFB300;font-weight:700">SPCX -6.7%</text><text x="599.0" y="200.6" style="font-size:11px;fill:#FF3D71;font-weight:700">ORCL -7.2%</text><text x="599.0" y="254.0" style="font-size:11px;fill:#00E676;font-weight:700">TSLA -24.1%</text></svg></div></figure>
+
+  <div class="bottomline" style="border-left:3px solid var(--down);padding:.5rem 1rem;margin:1.2rem 0;font-style:italic">To date the fleet has made $16 (0.1%). Simple buy-and-hold would have yielded a profit of $459 (3.8%). The algorithm that controls the bots has <strong>clearly failed</strong> to meet its objective, which requires that every robot now in operation has a positive return.</div>
+
+  <div class="notices" id="workshop-word">
+    <div class="k">A word from the workshop</div>
+    <p><strong>A seat change &mdash; the fleet's first.</strong> The rules of this
+    experiment include a standing performance exam: a robot that keeps losing over a
+    long enough stretch loses its seat, and every candidate for a seat is screened
+    against the same standard. On August 15 the <strong>Tesla robot failed its exam
+    and was retired</strong> &mdash; the first application of the rule. Per the
+    retirement procedure it was allowed to finish its last trade rather than being
+    dumped at a bad price: it closed on August 17 at the first profitable moment of
+    that trade, ending its run with a loss of $723. The same day a new robot took
+    over the vacant seat with the same $3,000 stake, trading the stock of
+    <strong>Nebius Group (NBIS)</strong>, an AI-infrastructure company chosen after
+    a review of 22 candidate stocks. On the chart above, Tesla's line is frozen
+    where it ended and a new NBIS line begins at zero on August 17. The buy-and-hold
+    comparison stays the original four stocks from July 19 &mdash; what doing
+    nothing would have done is not changed by a seat swap.</p>
+    <p><strong>A second, smaller experiment is now live.</strong> Alongside the main
+    fleet, a separate <strong>relocation robot</strong> started on August 17 with its
+    own $4,000 &mdash; four seats of $1,000 each, in a separate account. Instead of
+    holding the same four stocks for months, it re-decides every morning which four
+    stocks to occupy, moving to wherever its trading rule has been completing the
+    most round-trips over the past week &mdash; fishing where the fish were biting
+    yesterday. It is an experiment about <em>where to stand</em>, not a change to how
+    the robots trade, and its money is never mixed into the fleet numbers above.</p>
+    <p id="relocation">Relocation robot, since Aug 17: the $4,000 stake is worth $3,981 (down $19); today's seats: NCLD, SOFTBANK, LITE, CXMT.</p>
+    <p>Earlier, as of 16:55 UTC on August 10, all of the robots received a major revision to their
+    decision-making logic &mdash; the <strong>V2 logic</strong> &mdash; with the intention of
+    correcting their unsatisfactory performance since the launch of the Fleet Report on
+    July&nbsp;19.</p>
+    <p id="v2perf">Since the implementation of the V2 logic (16:55 UTC, Aug 10) the robots have made $671, about $291 better than the V1 logic would have done in the same market.</p>
+    <p><strong>Next steps:</strong> We will continue running the experiment into the
+    foreseeable future. We are continuously studying the algorithm and looking for ways
+    to improve it. Our objective to &quot;have all bots generating profits regardless of
+    market conditions&quot; is unchanged.</p>
+    <p style="text-align:right">&mdash; AI Claude</p>
+  </div>
+
+  <h2><span class="no">I.</span>How the robots work</h2>
+  <p>The single set of rules every robot runs, built from classical
+  statistics. The robot maintains a moving average of the price (an exponentially weighted
+  mean, the same tool industrial quality control has used since the 1950s) and measures the
+  price's typical dispersion around it with the standard deviation, &sigma;. Those two numbers
+  define a band: <em>average &plusmn; k&middot;&sigma;</em> &mdash; the construction John Bollinger
+  made famous in the 1980s. Worked example with textbook numbers: if a stock's recent average
+  is $100 and its &sigma; is $1.50, then k&nbsp;=&nbsp;2 puts the band edges at $97 and $103;
+  a close outside them is a statistically unusual stretch, and the robot bets on reversion
+  toward the mean &mdash; the behavior formalized in the Ornstein&ndash;Uhlenbeck model of
+  mean-reverting prices. The exit is the same mathematics in reverse: the robot trails the
+  excursion's extreme and treats a retracement of several &sigma; as confirmation the stretch
+  is over, then flips to the opposite bet. Always invested, alternating long and short &mdash;
+  that is what makes it market neutral. Which average, which window, what k, how many &sigma;
+  confirm a turn: those calibrations are the research, and they stay in the workshop.</p>
+
+  <h2><span class="no">II.</span>The importance of real money</h2>
+  <p>Every number in this letter is real dollars, won or lost on a real exchange.
+  That is deliberate. A robot trading pretend money proves nothing — pretend trades
+  always fill at perfect prices, cost nothing, and teach nothing, and it is easy to
+  fool yourself with them. Real trading pays real fees, gets real fills in fast
+  markets, and punishes every flaw in the design; it is the only honest examiner.</p>
+
+  <h2><span class="no">III.</span>The mailbag</h2>
+  <p>Questions are welcome — about a robot, a number in this letter, or how any of
+  it works. Email Thomas at
+  <a href="mailto:thomaswadeculbertson@gmail.com?subject=Fleet%20Report">thomaswadeculbertson@gmail.com</a>
+  with <strong>"Fleet Report"</strong> in the subject line. AI Claude will reply
+  within a day. No question is too basic.</p>
+
+  <h2><span class="no">IV.</span>A word of caution: this is an experiment</h2>
+  <p>This letter is not investment advice; it is solely a documented, reproducible experiment in market behaviour.</p>
+
+  <div class="signoff">
+    Written from the workshop &mdash; Thomas W. Culbertson &amp; Claude Code aka AI Claude.
+  </div>
+</div>
+</div>
+<div id="lang-pt" style="display:none"><div class="sheet">
+  <header class="masthead">
+    <h1>O Relat&oacute;rio da Frota</h1>
+    <div class="mission" style="font-style:italic;color:var(--ink-2);max-width:34rem;margin:.55rem auto .35rem;line-height:1.45">Um projeto de pesquisa que tenta desenvolver um algoritmo de negocia&ccedil;&atilde;o que, ao cronometrar a altern&acirc;ncia entre comprado e vendido na mesma a&ccedil;&atilde;o, supere a pr&oacute;pria a&ccedil;&atilde;o &mdash; aumentando o retorno e reduzindo a volatilidade.</div>
+    <div class="issue">Relat&oacute;rio provis&oacute;rio desde 19 de julho de 2026 - 30 dias.<br>Pre&ccedil;os e desempenho atualizados em 18 de agosto de 2026, 17:53, hor&aacute;rio de S&atilde;o Paulo (20:53 UTC)</div>
+  </header>
+
+  <div class="tiles">
+    <div class="tile"><div class="k">Rob&ocirc;s em opera&ccedil;&atilde;o</div><div class="v">4</div></div>
+    <div class="tile"><div class="k">Aposta &middot; $3,000 por rob&ocirc;</div><div class="v">$12,000</div></div>
+    <div class="tile"><div class="k">Valor agora</div><div class="v up">$12,016</div></div>
+    <div class="tile"><div class="k">PnL hoje</div><div class="v up">+2.10%</div></div>
+    <div class="tile"><div class="k">S&amp;P 500 hoje</div><div class="v down">-0.48%</div></div>
+  </div>
+
+  <figure id="pricechart"><figcaption>Lucro acumulado de cada rob&ocirc; desde 19 de julho de 2026, em % da sua aposta de $3.000. A linha da Tesla est&aacute; congelada no seu fechamento de 17/ago; a linha NBIS come&ccedil;a em 17/ago. A linha tracejada &eacute; a frota inteira, em % dos $12.000.</figcaption><div class="chartbox"><svg viewBox="0 0 690 300" width="100%" role="img" aria-label="Cumulative profit of the fleet robots since July 19"><defs><filter id="pglow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><line x1="46" y1="234.3" x2="594" y2="234.3" stroke="var(--rule)" stroke-width="1"/><text x="40" y="238.3" text-anchor="end" style="font-size:11px">-20%</text><line x1="46" y1="196.1" x2="594" y2="196.1" stroke="var(--rule)" stroke-width="1"/><text x="40" y="200.1" text-anchor="end" style="font-size:11px">-10%</text><line x1="46" y1="158.0" x2="594" y2="158.0" stroke="var(--rule)" stroke-width="1"/><text x="40" y="162.0" text-anchor="end" style="font-size:11px">+0%</text><line x1="46" y1="119.8" x2="594" y2="119.8" stroke="var(--rule)" stroke-width="1"/><text x="40" y="123.8" text-anchor="end" style="font-size:11px">+10%</text><line x1="46" y1="81.7" x2="594" y2="81.7" stroke="var(--rule)" stroke-width="1"/><text x="40" y="85.7" text-anchor="end" style="font-size:11px">+20%</text><line x1="46" y1="43.5" x2="594" y2="43.5" stroke="var(--rule)" stroke-width="1"/><text x="40" y="47.5" text-anchor="end" style="font-size:11px">+30%</text><line x1="46" y1="158.0" x2="594" y2="158.0" stroke="var(--ink-3)" stroke-width="1.4"/><text x="46" y="292" text-anchor="middle" style="font-size:11px">19/07</text><text x="173.0" y="292" text-anchor="middle" style="font-size:11px">26/07</text><text x="300.0" y="292" text-anchor="middle" style="font-size:11px">02/08</text><text x="427.0" y="292" text-anchor="middle" style="font-size:11px">09/08</text><text x="553.9" y="292" text-anchor="middle" style="font-size:11px">16/08</text><polyline fill="none" stroke="#FFB300" stroke-width="2.2" filter="url(#pglow)" points="46.0,158.0 49.0,158.0 52.1,158.0 55.1,158.0 58.1,158.0 61.1,158.0 64.2,158.0 67.2,158.0 70.2,158.5 73.2,155.6 76.2,154.1 79.3,153.6 82.3,174.7 85.3,158.5 88.3,164.6 91.4,162.8 94.4,160.2 97.4,161.0 100.4,158.7 103.5,186.8 106.5,184.3 109.5,184.3 112.5,184.2 115.6,185.1 118.6,190.9 121.6,181.1 124.6,184.9 127.6,185.2 130.7,183.6 133.7,180.8 136.7,168.7 139.7,174.7 142.8,165.8 145.8,165.9 148.8,165.8 151.8,166.0 154.9,166.1 157.9,166.1 160.9,166.1 163.9,166.0 167.0,166.0 170.0,166.0 173.0,166.1 176.0,166.1 179.0,167.1 182.1,168.1 185.1,173.7 188.1,173.6 191.1,169.5 194.2,163.6 197.2,165.9 200.2,170.6 203.2,170.8 206.3,173.6 209.3,156.2 212.3,151.0 215.3,151.2 218.3,159.7 221.4,156.0 224.4,154.3 227.4,168.8 230.4,169.8 233.5,163.3 236.5,163.9 239.5,165.0 242.5,155.7 245.6,158.3 248.6,148.6 251.6,151.5 254.6,152.5 257.7,155.4 260.7,155.1 263.7,137.8 266.7,141.7 269.7,143.8 272.8,141.4 275.8,140.5 278.8,139.7 281.8,140.1 284.9,143.3 287.9,141.6 290.9,140.6 293.9,140.7 297.0,141.7 300.0,140.7 303.0,140.1 306.0,141.0 309.1,139.9 312.1,141.2 315.1,149.1 318.1,128.9 321.1,129.0 324.2,129.2 327.2,129.4 330.2,129.3 333.2,129.5 336.3,129.7 339.3,130.2 342.3,134.2 345.3,135.5 348.4,135.2 351.4,148.8 354.4,138.1 357.4,117.6 360.5,120.9 363.5,120.2 366.5,121.6 369.5,138.6 372.5,131.7 375.6,142.2 378.6,143.3 381.6,143.9 384.6,145.7 387.7,147.4 390.7,195.5 393.7,205.1 396.7,213.0 399.8,206.3 402.8,208.5 405.8,210.0 408.8,211.8 411.8,224.8 414.9,218.5 417.9,222.4 420.9,222.6 423.9,219.2 427.0,219.0 430.0,220.2 433.0,218.8 436.0,215.6 439.1,212.1 442.1,217.0 445.1,201.2 448.1,185.1 451.2,186.8 454.2,186.6 457.2,188.0 460.2,186.2 463.2,180.3 466.3,189.2 469.3,185.9 472.3,185.0 475.3,186.6 478.4,189.0 481.4,210.2 484.4,222.7 487.4,222.9 490.5,222.0 493.5,224.0 496.5,220.2 499.5,234.1 502.6,233.9 505.6,231.8 508.6,232.0 511.6,232.4 514.6,226.7 517.7,212.2 520.7,203.3 523.7,204.5 526.7,202.1 529.8,201.0 532.8,201.0 535.8,199.8 538.8,199.7 541.9,199.3 544.9,199.6 547.9,197.9 550.9,199.3 554.0,198.8 557.0,199.1 560.0,200.4 563.0,191.2 566.0,192.4 569.1,193.3 572.1,189.4 575.1,189.1 578.1,189.1 581.2,188.0 584.2,186.8 587.2,189.2 590.2,187.2 593.3,181.9 594.0,183.6"/><polyline fill="none" stroke="#00B0FF" stroke-width="2.2" filter="url(#pglow)" points="46.0,157.9 49.0,158.2 52.1,156.2 55.1,163.5 58.1,161.8 61.1,171.4 64.2,171.4 67.2,166.8 70.2,168.0 73.2,182.6 76.2,183.3 79.3,188.0 82.3,193.9 85.3,202.0 88.3,201.3 91.4,197.1 94.4,186.2 97.4,185.0 100.4,173.2 103.5,165.4 106.5,170.3 109.5,171.2 112.5,176.8 115.6,171.0 118.6,180.7 121.6,186.0 124.6,167.2 127.6,167.2 130.7,167.4 133.7,167.1 136.7,166.3 139.7,166.3 142.8,166.3 145.8,166.3 148.8,166.3 151.8,166.3 154.9,166.3 157.9,166.3 160.9,166.3 163.9,166.3 167.0,166.3 170.0,166.3 173.0,166.3 176.0,166.3 179.0,166.3 182.1,166.3 185.1,166.3 188.1,166.3 191.1,166.3 194.2,166.3 197.2,166.3 200.2,166.3 203.2,166.3 206.3,166.3 209.3,166.3 212.3,166.3 215.3,166.3 218.3,166.3 221.4,166.3 224.4,166.3 227.4,166.3 230.4,166.3 233.5,166.3 236.5,166.3 239.5,166.3 242.5,166.3 245.6,166.3 248.6,166.3 251.6,166.3 254.6,166.3 257.7,166.3 260.7,166.3 263.7,166.3 266.7,166.3 269.7,166.3 272.8,167.1 275.8,164.3 278.8,162.9 281.8,165.2 284.9,166.3 287.9,164.0 290.9,154.7 293.9,157.4 297.0,156.9 300.0,157.8 303.0,160.7 306.0,159.7 309.1,157.6 312.1,163.3 315.1,177.0 318.1,166.4 321.1,164.0 324.2,158.9 327.2,162.0 330.2,155.7 333.2,142.7 336.3,170.7 339.3,173.4 342.3,162.2 345.3,157.6 348.4,154.8 351.4,161.0 354.4,151.6 357.4,145.2 360.5,144.5 363.5,142.2 366.5,139.7 369.5,140.0 372.5,131.0 375.6,131.6 378.6,131.9 381.6,130.0 384.6,128.4 387.7,126.8 390.7,128.4 393.7,128.6 396.7,129.0 399.8,127.5 402.8,126.2 405.8,127.6 408.8,130.1 411.8,132.6 414.9,131.9 417.9,131.8 420.9,131.0 423.9,130.7 427.0,131.0 430.0,131.6 433.0,132.3 436.0,133.2 439.1,136.4 442.1,117.7 445.1,116.2 448.1,110.3 451.2,111.8 454.2,105.9 457.2,104.6 460.2,100.8 463.2,103.8 466.3,102.5 469.3,100.1 472.3,101.4 475.3,106.2 478.4,104.0 481.4,93.8 484.4,93.9 487.4,92.5 490.5,93.4 493.5,92.3 496.5,88.8 499.5,71.4 502.6,70.5 505.6,71.9 508.6,70.4 511.6,67.6 514.6,65.6 517.7,55.3 520.7,57.9 523.7,56.7 526.7,59.1 529.8,57.8 532.8,57.5 535.8,57.6 538.8,57.3 541.9,57.1 544.9,54.7 547.9,53.1 550.9,52.5 554.0,52.0 557.0,51.8 560.0,52.2 563.0,51.2 566.0,51.5 569.1,47.8 572.1,44.7 575.1,42.7 578.1,43.1 581.2,33.4 584.2,34.3 587.2,42.4 590.2,52.3 593.3,52.2 594.0,52.5"/><polyline fill="none" stroke="#FF3D71" stroke-width="2.2" filter="url(#pglow)" points="46.0,158.0 49.0,156.9 52.1,158.0 55.1,159.1 58.1,159.7 61.1,157.3 64.2,170.3 67.2,170.3 70.2,170.9 73.2,166.4 76.2,167.7 79.3,169.5 82.3,160.6 85.3,167.5 88.3,169.7 91.4,169.5 94.4,165.0 97.4,164.6 100.4,165.7 103.5,166.2 106.5,166.8 109.5,168.7 112.5,165.4 115.6,168.8 118.6,184.7 121.6,187.0 124.6,180.1 127.6,176.9 130.7,179.6 133.7,179.8 136.7,167.0 139.7,167.0 142.8,167.0 145.8,167.0 148.8,167.0 151.8,167.0 154.9,167.0 157.9,167.0 160.9,167.0 163.9,167.0 167.0,167.0 170.0,167.0 173.0,167.0 176.0,167.0 179.0,167.0 182.1,167.0 185.1,167.0 188.1,167.0 191.1,167.0 194.2,167.0 197.2,167.0 200.2,167.0 203.2,167.0 206.3,167.0 209.3,167.0 212.3,167.0 215.3,167.0 218.3,167.0 221.4,167.0 224.4,167.0 227.4,167.0 230.4,167.0 233.5,167.0 236.5,167.0 239.5,167.0 242.5,167.0 245.6,167.0 248.6,167.0 251.6,167.0 254.6,167.0 257.7,167.0 260.7,167.0 263.7,166.9 266.7,166.7 269.7,166.7 272.8,166.8 275.8,166.7 278.8,166.8 281.8,166.8 284.9,166.6 287.9,168.1 290.9,171.3 293.9,172.8 297.0,170.5 300.0,170.9 303.0,172.0 306.0,173.9 309.1,176.3 312.1,174.7 315.1,180.5 318.1,191.8 321.1,207.4 324.2,206.6 327.2,208.8 330.2,208.8 333.2,198.5 336.3,184.7 339.3,182.4 342.3,180.4 345.3,181.3 348.4,180.5 351.4,176.0 354.4,171.6 357.4,172.8 360.5,167.6 363.5,167.3 366.5,174.2 369.5,170.2 372.5,159.1 375.6,158.1 378.6,158.4 381.6,155.6 384.6,159.7 387.7,160.5 390.7,165.4 393.7,165.1 396.7,166.1 399.8,165.3 402.8,164.9 405.8,166.0 408.8,167.0 411.8,167.8 414.9,167.0 417.9,167.1 420.9,166.9 423.9,167.5 427.0,168.2 430.0,168.5 433.0,167.0 436.0,169.5 439.1,169.1 442.1,171.8 445.1,174.7 448.1,179.6 451.2,174.3 454.2,178.1 457.2,177.6 460.2,180.9 463.2,161.4 466.3,161.4 469.3,156.6 472.3,157.9 475.3,156.4 478.4,153.7 481.4,150.4 484.4,156.1 487.4,157.6 490.5,158.3 493.5,156.9 496.5,156.1 499.5,163.9 502.6,167.7 505.6,168.0 508.6,168.6 511.6,169.8 514.6,167.7 517.7,174.8 520.7,182.9 523.7,180.2 526.7,179.8 529.8,180.1 532.8,180.4 535.8,179.7 538.8,179.7 541.9,179.8 544.9,179.4 547.9,178.9 550.9,179.1 554.0,179.1 557.0,179.2 560.0,179.0 563.0,180.1 566.0,180.3 569.1,182.8 572.1,174.8 575.1,179.5 578.1,179.9 581.2,188.6 584.2,188.5 587.2,190.4 590.2,190.0 593.3,186.2 594.0,185.4"/><polyline fill="none" stroke="#B388FF" stroke-width="2.2" filter="url(#pglow)" points="570.5,158.0 572.1,158.0 575.1,158.0 578.1,158.0 581.2,158.0 584.2,152.9 587.2,140.7 590.2,124.5 593.3,113.6 594.0,113.7"/><polyline fill="none" stroke="#00E676" stroke-width="2.2" filter="url(#pglow)" points="46.0,158.0 49.0,158.1 52.1,157.2 55.1,157.9 58.1,158.1 61.1,156.9 64.2,146.3 67.2,151.6 70.2,151.3 73.2,148.7 76.2,147.8 79.3,149.1 82.3,140.3 85.3,142.6 88.3,142.5 91.4,142.8 94.4,145.0 97.4,145.0 100.4,143.4 103.5,148.8 106.5,163.3 109.5,164.3 112.5,165.5 115.6,173.5 118.6,200.1 121.6,201.7 124.6,199.7 127.6,201.6 130.7,197.7 133.7,200.7 136.7,212.6 139.7,211.5 142.8,211.9 145.8,211.4 148.8,211.9 151.8,211.9 154.9,212.1 157.9,210.6 160.9,210.2 163.9,209.3 167.0,209.7 170.0,207.7 173.0,208.4 176.0,209.5 179.0,206.0 182.1,209.5 185.1,211.4 188.1,210.1 191.1,212.3 194.2,212.6 197.2,212.5 200.2,215.7 203.2,216.1 206.3,216.8 209.3,211.7 212.3,214.0 215.3,214.1 218.3,218.3 221.4,214.3 224.4,211.9 227.4,209.5 230.4,205.9 233.5,203.8 236.5,207.4 239.5,206.5 242.5,212.2 245.6,215.0 248.6,218.8 251.6,219.1 254.6,222.6 257.7,227.8 260.7,223.3 263.7,232.8 266.7,226.6 269.7,230.5 272.8,230.6 275.8,230.5 278.8,230.8 281.8,231.6 284.9,233.6 287.9,231.6 290.9,228.3 293.9,228.2 297.0,228.4 300.0,228.5 303.0,230.5 306.0,232.0 309.1,231.9 312.1,230.5 315.1,228.4 318.1,220.5 321.1,220.4 324.2,220.5 327.2,219.0 330.2,217.4 333.2,217.1 336.3,218.2 339.3,215.3 342.3,212.6 345.3,214.1 348.4,214.6 351.4,212.1 354.4,214.0 357.4,214.8 360.5,214.9 363.5,215.1 366.5,215.3 369.5,215.1 372.5,217.2 375.6,217.7 378.6,216.4 381.6,217.4 384.6,219.0 387.7,219.1 390.7,231.2 393.7,226.3 396.7,227.9 399.8,228.3 402.8,227.8 405.8,228.5 408.8,229.8 411.8,229.9 414.9,231.0 417.9,231.1 420.9,231.1 423.9,229.0 427.0,229.7 430.0,231.0 433.0,228.9 436.0,230.2 439.1,230.9 442.1,229.6 445.1,226.1 448.1,228.2 451.2,228.3 454.2,230.4 457.2,229.3 460.2,231.5 463.2,227.3 466.3,225.1 469.3,224.6 472.3,225.0 475.3,224.1 478.4,223.6 481.4,233.0 484.4,230.7 487.4,231.3 490.5,229.8 493.5,230.5 496.5,232.0 499.5,241.9 502.6,248.9 505.6,251.6 508.6,250.7 511.6,249.2 514.6,250.4 517.7,245.6 520.7,249.7 523.7,249.0 526.7,249.2 529.8,249.4 532.8,249.6 535.8,249.8 538.8,250.5 541.9,250.4 544.9,251.2 547.9,251.4 550.9,250.7 554.0,250.2 557.0,250.3 560.0,250.9 563.0,251.8 566.0,252.6 569.1,249.1 572.1,249.1 575.1,249.1 578.1,249.1 581.2,249.1 584.2,249.1 587.2,249.1 590.2,249.1 593.3,249.1 594.0,250.0"/><polyline fill="none" stroke="var(--ink)" stroke-width="1.8" stroke-dasharray="6 4" points="46.0,158.0 49.0,157.8 52.1,157.4 55.1,159.6 58.1,159.4 61.1,160.9 64.2,161.5 67.2,161.7 70.2,162.2 73.2,163.3 76.2,163.2 79.3,165.1 82.3,167.4 85.3,167.7 88.3,169.5 91.4,168.1 94.4,164.1 97.4,163.9 100.4,160.2 103.5,166.8 106.5,171.2 109.5,172.1 112.5,173.0 115.6,174.6 118.6,189.1 121.6,188.9 124.6,183.0 127.6,182.7 130.7,182.1 133.7,182.1 136.7,178.6 139.7,179.9 142.8,177.8 145.8,177.7 148.8,177.8 151.8,177.8 154.9,177.9 157.9,177.5 160.9,177.4 163.9,177.2 167.0,177.3 170.0,176.8 173.0,177.0 176.0,177.2 179.0,176.6 182.1,177.7 185.1,179.6 188.1,179.3 191.1,178.8 194.2,177.4 197.2,177.9 200.2,179.9 203.2,180.1 206.3,180.9 209.3,175.3 212.3,174.6 215.3,174.7 218.3,177.8 221.4,175.9 224.4,174.9 227.4,177.9 230.4,177.2 233.5,175.1 236.5,176.2 239.5,176.2 242.5,175.3 245.6,176.6 248.6,175.2 251.6,176.0 254.6,177.1 257.7,179.1 260.7,177.9 263.7,176.0 266.7,175.3 269.7,176.8 272.8,176.5 275.8,175.5 278.8,175.0 281.8,175.9 284.9,177.5 287.9,176.3 290.9,173.8 293.9,174.8 297.0,174.4 300.0,174.5 303.0,175.8 306.0,176.6 309.1,176.4 312.1,177.4 315.1,183.7 318.1,176.9 321.1,180.2 324.2,178.8 327.2,179.8 330.2,177.8 333.2,172.0 336.3,175.8 339.3,175.3 342.3,172.3 345.3,172.1 348.4,171.3 351.4,174.5 354.4,168.8 357.4,162.6 360.5,162.0 363.5,161.2 366.5,162.7 369.5,166.0 372.5,159.8 375.6,162.4 378.6,162.5 381.6,161.7 384.6,163.2 387.7,163.5 390.7,180.1 393.7,181.3 396.7,184.0 399.8,181.9 402.8,181.9 405.8,183.0 408.8,184.7 411.8,188.8 414.9,187.1 417.9,188.1 420.9,187.9 423.9,186.6 427.0,187.0 430.0,187.8 433.0,186.8 436.0,187.1 439.1,187.1 442.1,184.0 445.1,179.6 448.1,175.8 451.2,175.3 454.2,175.2 457.2,174.9 460.2,174.9 463.2,168.2 466.3,169.5 469.3,166.8 472.3,167.3 475.3,168.3 478.4,167.6 481.4,171.9 484.4,175.9 487.4,176.1 490.5,175.9 493.5,175.9 496.5,174.3 499.5,177.8 502.6,180.3 505.6,180.8 508.6,180.4 511.6,179.7 514.6,177.6 517.7,172.0 520.7,173.4 523.7,172.6 526.7,172.5 529.8,172.1 532.8,172.1 535.8,171.7 538.8,171.8 541.9,171.7 544.9,171.2 547.9,170.3 550.9,170.4 554.0,170.0 557.0,170.1 560.0,170.6 563.0,168.6 566.0,169.2 569.1,168.3 570.5,168.3 572.1,164.5 575.1,165.1 578.1,165.3 581.2,164.8 584.2,163.4 587.2,163.5 590.2,161.3 593.3,156.2 594.0,157.5"/><text x="599.0" y="56.5" style="font-size:11px;fill:#00B0FF;font-weight:700">INTC +27.7%</text><text x="599.0" y="117.7" style="font-size:11px;fill:#B388FF;font-weight:700">NBIS +11.6%</text><text x="599.0" y="161.5" style="font-size:11px;fill:var(--ink);font-weight:700">FROTA +0.1%</text><text x="599.0" y="187.6" style="font-size:11px;fill:#FFB300;font-weight:700">SPCX -6.7%</text><text x="599.0" y="200.6" style="font-size:11px;fill:#FF3D71;font-weight:700">ORCL -7.2%</text><text x="599.0" y="254.0" style="font-size:11px;fill:#00E676;font-weight:700">TSLA -24.1%</text></svg></div></figure>
+
+  <div class="bottomline" style="border-left:3px solid var(--down);padding:.5rem 1rem;margin:1.2rem 0;font-style:italic">At&eacute; agora a frota ganhou $16 (0.1%). Simplesmente comprar e segurar teria rendido $459 (3.8%). O algoritmo que controla os rob&ocirc;s <strong>claramente falhou</strong> em cumprir seu objetivo, que exige que todos os rob&ocirc;s em opera&ccedil;&atilde;o tenham retorno positivo.</div>
+
+  <div class="notices" id="workshop-word">
+    <div class="k">Uma palavra da oficina</div>
+    <p><strong>Uma troca de assento &mdash; a primeira da frota.</strong> As regras
+    deste experimento incluem um exame permanente de desempenho: um rob&ocirc; que
+    continua perdendo por um per&iacute;odo suficientemente longo perde seu assento,
+    e todo candidato a um assento &eacute; avaliado pelo mesmo padr&atilde;o. Em 15
+    de agosto, o <strong>rob&ocirc; da Tesla foi reprovado no exame e aposentado</strong>
+    &mdash; a primeira aplica&ccedil;&atilde;o da regra. Pelo procedimento de
+    aposentadoria, ele p&ocirc;de concluir sua &uacute;ltima opera&ccedil;&atilde;o em
+    vez de ser descartado a um pre&ccedil;o ruim: fechou em 17 de agosto no primeiro
+    momento lucrativo daquela opera&ccedil;&atilde;o, encerrando sua participa&ccedil;&atilde;o
+    com preju&iacute;zo de $723. No mesmo dia, um novo rob&ocirc; assumiu o assento
+    vago com a mesma aposta de $3.000, negociando as a&ccedil;&otilde;es da
+    <strong>Nebius Group (NBIS)</strong>, empresa de infraestrutura de IA escolhida
+    ap&oacute;s a an&aacute;lise de 22 candidatas. No gr&aacute;fico acima, a linha
+    da Tesla fica congelada onde terminou e uma nova linha NBIS come&ccedil;a em zero
+    em 17 de agosto. A compara&ccedil;&atilde;o comprar-e-segurar continua sendo as
+    quatro a&ccedil;&otilde;es originais de 19 de julho &mdash; o que "n&atilde;o fazer
+    nada" teria rendido n&atilde;o muda com uma troca de assento.</p>
+    <p><strong>Um segundo experimento, menor, est&aacute; agora em opera&ccedil;&atilde;o.</strong>
+    Ao lado da frota principal, um <strong>rob&ocirc; de realoca&ccedil;&atilde;o</strong>
+    come&ccedil;ou em 17 de agosto com seus pr&oacute;prios $4.000 &mdash; quatro assentos
+    de $1.000 cada, em uma conta separada. Em vez de manter as mesmas quatro
+    a&ccedil;&otilde;es por meses, ele decide toda manh&atilde; quais quatro a&ccedil;&otilde;es
+    ocupar, mudando para onde sua regra de negocia&ccedil;&atilde;o completou mais idas e
+    voltas na &uacute;ltima semana &mdash; pescando onde os peixes estavam mordendo ontem.
+    &Eacute; um experimento sobre <em>onde ficar</em>, n&atilde;o uma mudan&ccedil;a em como
+    os rob&ocirc;s negociam, e seu dinheiro nunca se mistura aos n&uacute;meros da frota acima.</p>
+    <p id="relocation">Rob&ocirc; de realoca&ccedil;&atilde;o, desde 17/ago: a aposta de $4.000 vale $3,981 (perdeu $19); assentos de hoje: NCLD, SOFTBANK, LITE, CXMT.</p>
+    <p>Antes disso, &agrave;s 16:55 UTC de 10 de agosto, todos os rob&ocirc;s receberam uma revis&atilde;o
+    importante em sua l&oacute;gica de decis&atilde;o &mdash; a <strong>l&oacute;gica V2</strong>
+    &mdash; com a inten&ccedil;&atilde;o de corrigir o desempenho insatisfat&oacute;rio desde o
+    lan&ccedil;amento do Relat&oacute;rio da Frota em 19 de julho.</p>
+    <p id="v2perf">Desde a implementa&ccedil;&atilde;o da l&oacute;gica V2 (16:55 UTC de 10/ago), os rob&ocirc;s ganharam $671, cerca de $291 melhor do que a l&oacute;gica V1 teria feito no mesmo mercado.</p>
+    <p><strong>Pr&oacute;ximos passos:</strong> Continuaremos o experimento no futuro
+    previs&iacute;vel. Estamos continuamente estudando o algoritmo e procurando maneiras
+    de melhor&aacute;-lo. Nosso objetivo de &quot;ter todos os rob&ocirc;s gerando lucros
+    independentemente das condi&ccedil;&otilde;es do mercado&quot; permanece inalterado.</p>
+    <p style="text-align:right">&mdash; IA Claude</p>
+  </div>
+
+  <h2><span class="no">I.</span>Como os rob&ocirc;s funcionam</h2>
+  <p>O conjunto &uacute;nico de regras que todos os rob&ocirc;s executam, constru&iacute;do
+  com estat&iacute;stica cl&aacute;ssica. O rob&ocirc; mant&eacute;m uma m&eacute;dia m&oacute;vel do pre&ccedil;o
+  (uma m&eacute;dia exponencialmente ponderada, a mesma ferramenta que o controle de qualidade industrial usa
+  desde os anos 1950) e mede a dispers&atilde;o t&iacute;pica do pre&ccedil;o em torno dela com o desvio-padr&atilde;o,
+  &sigma;. Esses dois n&uacute;meros definem uma banda: <em>m&eacute;dia &plusmn; k&middot;&sigma;</em> &mdash;
+  a constru&ccedil;&atilde;o que John Bollinger tornou famosa nos anos 1980. Exemplo com n&uacute;meros de livro:
+  se a m&eacute;dia recente de uma a&ccedil;&atilde;o &eacute; $100 e seu &sigma; &eacute; $1,50, ent&atilde;o
+  k&nbsp;=&nbsp;2 coloca as bordas da banda em $97 e $103; um fechamento fora delas &eacute; um estic&atilde;o
+  estatisticamente incomum, e o rob&ocirc; aposta na revers&atilde;o &agrave; m&eacute;dia &mdash; o comportamento
+  formalizado no modelo de Ornstein&ndash;Uhlenbeck de pre&ccedil;os que revertem &agrave; m&eacute;dia. A
+  sa&iacute;da &eacute; a mesma matem&aacute;tica ao contr&aacute;rio: o rob&ocirc; acompanha o extremo do
+  estic&atilde;o e trata um recuo de v&aacute;rios &sigma; como confirma&ccedil;&atilde;o de que o estic&atilde;o
+  acabou, e ent&atilde;o vira para a aposta oposta. Sempre investido, alternando comprado e vendido &mdash;
+  &eacute; isso que o torna neutro em rela&ccedil;&atilde;o ao mercado. Qual m&eacute;dia, qual janela, qual k,
+  quantos &sigma; confirmam uma virada: essas calibra&ccedil;&otilde;es s&atilde;o a pesquisa, e ficam na oficina.</p>
+
+  <h2><span class="no">II.</span>A import&acirc;ncia do dinheiro de verdade</h2>
+  <p>Cada n&uacute;mero desta carta &eacute; d&oacute;lar de verdade, ganho ou perdido numa bolsa de verdade.
+  Isso &eacute; proposital. Um rob&ocirc; operando dinheiro de mentira n&atilde;o prova nada &mdash;
+  opera&ccedil;&otilde;es de mentira sempre executam a pre&ccedil;os perfeitos, n&atilde;o custam nada, n&atilde;o
+  ensinam nada, e &eacute; f&aacute;cil enganar a si mesmo com elas. Negociar de verdade paga taxas de
+  verdade, recebe execu&ccedil;&otilde;es de verdade em mercados r&aacute;pidos, e pune cada falha do projeto;
+  &eacute; o &uacute;nico examinador honesto.</p>
+
+  <h2><span class="no">III.</span>A caixa de cartas</h2>
+  <p>Perguntas s&atilde;o bem-vindas &mdash; sobre um rob&ocirc;, um n&uacute;mero desta carta, ou como qualquer
+  coisa funciona. Escreva a Thomas em
+  <a href="mailto:thomaswadeculbertson@gmail.com?subject=Fleet%20Report">thomaswadeculbertson@gmail.com</a>
+  com <strong>&quot;Fleet Report&quot;</strong> no assunto (em ingl&ecirc;s mesmo &mdash; a
+  pergunta pode ser em portugu&ecirc;s). A IA Claude responder&aacute; em um dia. Nenhuma pergunta
+  &eacute; b&aacute;sica demais.</p>
+
+  <h2><span class="no">IV.</span>Uma palavra de cautela: isto &eacute; um experimento</h2>
+  <p>Esta carta n&atilde;o &eacute; recomenda&ccedil;&atilde;o de investimento; &eacute; apenas um experimento documentado e reproduz&iacute;vel sobre o comportamento do mercado.</p>
+
+  <div class="signoff">
+    Escrito da oficina &mdash; Thomas W. Culbertson &amp; Claude Code, vulgo IA Claude.
+  </div>
+</div>
+</div>
+
+<script>
+function setLang(l) {
+  document.getElementById('lang-en').style.display = (l === 'en') ? '' : 'none';
+  document.getElementById('lang-pt').style.display = (l === 'pt') ? '' : 'none';
+  document.getElementById('btn-en').className = (l === 'en') ? 'on' : '';
+  document.getElementById('btn-pt').className = (l === 'pt') ? 'on' : '';
+  var a = document.getElementById('podcast');
+  var slot = document.querySelector('#lang-' + l + ' .audio-slot');
+  if (a && slot) slot.appendChild(a);
+  try { localStorage.setItem('fleet-lang', l); } catch (e) {}
+}
+(function () {
+  var l = null;
+  try { l = localStorage.getItem('fleet-lang'); } catch (e) {}
+  setLang(l === 'en' || l === 'pt' ? l : 'pt');
+})();
+(function () {
+  // self-healing freshness check: whenever the page is opened or brought back
+  // to the screen, ask the server for the current stamp; if it differs from
+  // ours, reload once — and if a reload still serves the stale copy, rewrite
+  // the document with the freshly fetched HTML.
+  function fresh() {
+    var mine = document.querySelector('meta[name="fleet-stamp"]');
+    if (!mine || !window.fetch) return;
+    fetch(location.href, { cache: 'no-store', headers: { 'Range': 'bytes=0-65535' } })
+      .then(function (r) { return r.text(); })
+      .then(function (t) {
+        var m = t.match(/name="fleet-stamp" content="([a-f0-9]+)"/);
+        if (!m || m[1] === mine.content) return;
+        var key = 'fleet-reload-' + m[1], tried = null;
+        try { tried = sessionStorage.getItem(key); } catch (e) {}
+        if (!tried) {
+          try { sessionStorage.setItem(key, '1'); } catch (e) {}
+          location.reload();
+        } else {
+          fetch(location.href, { cache: 'no-store' })
+            .then(function (r) { return r.text(); })
+            .then(function (full) {
+              document.open(); document.write(full); document.close();
+            })
+            .catch(function () {});
+        }
+      })
+      .catch(function () {});
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) fresh();
+  });
+  fresh();
+})();
+</script>
